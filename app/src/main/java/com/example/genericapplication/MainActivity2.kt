@@ -1,10 +1,12 @@
 package com.example.genericapplication
 
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
 import android.webkit.WebViewClient
+import androidx.appcompat.app.ActionBar
+import androidx.appcompat.app.AppCompatActivity
 import com.example.genericapplication.factories.DotenvFactory
 import com.example.genericapplication.services.AudioProviderService
 import com.example.genericapplication.services.VideoProviderService
@@ -19,8 +21,8 @@ import kotlinx.android.synthetic.main.activity_main.textView
 import kotlinx.android.synthetic.main.activity_main.webView
 import kotlinx.android.synthetic.main.activity_main2.*
 
-class MainActivity2 : AppCompatActivity() {
 
+class MainActivity2 : AppCompatActivity() {
     private var player: ExoPlayer? = null
     private var adsLoader: ImaAdsLoader? = null
     private var mediaUrl: String? = null
@@ -28,6 +30,18 @@ class MainActivity2 : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main2)
+
+        // calling the action bar
+        // calling the action bar
+        val actionBar: ActionBar? = supportActionBar
+
+        // showing the back button in action bar
+
+        // showing the back button in action bar
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true)
+        }
+
         this.init()
     }
 
@@ -155,5 +169,15 @@ class MainActivity2 : AppCompatActivity() {
         return DefaultMediaSourceFactory(this)
             .setAdsLoaderProvider { unusedAdTagUri: MediaItem.AdsConfiguration? -> adsLoader }
             .setAdViewProvider(playerView)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.getItemId()) {
+            android.R.id.home -> {
+                finish()
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 }
