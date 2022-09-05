@@ -35,9 +35,9 @@ class MainActivity2 : AppCompatActivity() {
         // Create an AdsLoader.
         this.adsLoader = ImaAdsLoader.Builder(this).build()
         this.textView.text = intent.getStringExtra("title")
-        this.loadWebView()
         this.mediaUrl = this.buildMediaUrl();
         this.hidePlayerViewIfMediaUrlIsNull()
+        this.loadWebView()
     }
 
     private fun hidePlayerViewIfMediaUrlIsNull() {
@@ -111,15 +111,13 @@ class MainActivity2 : AppCompatActivity() {
     }
 
     private fun buildMediaUrl(): String? {
-        if(this.mediaUrl == null) {
-            val videoIdentifier = intent.getStringExtra("defaultVideoIdentifier")
-            val audioIdentifier = intent.getStringExtra("defaultAudioIdentifier")
-            if(videoIdentifier != null)
-                this.mediaUrl = VideoProviderService.buildUrl(videoIdentifier)
-            else if(audioIdentifier != null)
-                this.mediaUrl = AudioProviderService.buildUrl(audioIdentifier)
-        }
-        return this.mediaUrl;
+        val videoIdentifier = intent.getStringExtra("defaultVideoIdentifier")
+        if(videoIdentifier != null)
+            return VideoProviderService.buildUrl(videoIdentifier)
+
+        val audioIdentifier = intent.getStringExtra("defaultAudioIdentifier")
+        if(audioIdentifier != null)
+            return AudioProviderService.buildUrl(audioIdentifier)
     }
 
     private fun initializePlayer() {
