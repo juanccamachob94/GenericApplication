@@ -118,6 +118,7 @@ class MainActivity2 : AppCompatActivity() {
         val audioIdentifier = intent.getStringExtra("defaultAudioIdentifier")
         if(audioIdentifier != null)
             return AudioProviderService.buildUrl(audioIdentifier)
+        return null
     }
 
     private fun initializePlayer() {
