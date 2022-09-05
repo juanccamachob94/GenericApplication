@@ -9,6 +9,7 @@ import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
 import com.example.genericapplication.services.WebViewService
 import kotlinx.android.synthetic.main.activity_main.*
+import java.net.URLDecoder
 
 
 class MainActivity : AppCompatActivity() {
@@ -55,7 +56,7 @@ class MainActivity : AppCompatActivity() {
                 intent.putExtra("webViewIdentifier", webViewIdentifier)
                 val data = WebViewService.catchData(url)
                 for((k, v) in data)
-                    intent.putExtra(k, v)
+                    intent.putExtra(k, URLDecoder.decode(v, "UTF-8"))
 
                 startActivityForResult(intent, 0)
                 return true
