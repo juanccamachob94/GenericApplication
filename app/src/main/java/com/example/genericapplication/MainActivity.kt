@@ -54,9 +54,9 @@ class MainActivity : AppCompatActivity() {
 
                 val intent = Intent(this@MainActivity, MainActivity2::class.java)
                 intent.putExtra("webViewIdentifier", webViewIdentifier)
-                val data = WebViewService.catchData(url)
+                val data = WebViewService.catchData(URLDecoder.decode(url, "UTF-8"))
                 for((k, v) in data)
-                    intent.putExtra(k, URLDecoder.decode(v, "UTF-8"))
+                    intent.putExtra(k, v)
 
                 startActivityForResult(intent, 0)
                 return true
