@@ -36,7 +36,9 @@ class MainActivity2 : AppCompatActivity() {
 
     private fun loadWebView() {
         this.loadWebViewSettings()
-        this.webView!!.loadDataWithBaseURL(null, WebViewService.read(intent.getStringExtra("webViewIdentifier")), "text/html", "UTF-8", null)
+        this.webView!!.loadDataWithBaseURL(null,
+            WebViewService.read(intent.getStringExtra("webViewIdentifier")), "text/html", "UTF-8",
+            null)
         this.webView.webViewClient = object : WebViewClient() {}
     }
 
@@ -97,7 +99,8 @@ class MainActivity2 : AppCompatActivity() {
     }
 
     private fun initializePlayer() {
-        val videoUrl: String? = VideoProviderService.buildUrl(intent.getStringExtra("defaultVideoIdentifier"))
+        val videoUrl: String? =
+            VideoProviderService.buildUrl(intent.getStringExtra("defaultVideoIdentifier"))
         val contentUri = Uri.parse(videoUrl)
         val adTagUri = Uri.parse(DotenvFactory.getInstance()["AD_TAG_URL"])
         // Create a SimpleExoPlayer and set it as the player for content and ads.

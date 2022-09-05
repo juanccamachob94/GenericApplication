@@ -29,7 +29,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun loadWebView() {
         this.loadWebViewSettings()
-        this.webView!!.loadDataWithBaseURL(null, WebViewService.read("mywebpage.html"), "text/html", "UTF-8", null)
+        this.webView!!.loadDataWithBaseURL(null, WebViewService.read("mywebpage.html"),
+            "text/html", "UTF-8", null)
         this.loadWebViewClient()
     }
 
@@ -47,13 +48,12 @@ class MainActivity : AppCompatActivity() {
                 if(!WebViewService.isAppUrl(url))
                     return true
 
-                val webViewIdentifier: String? = WebViewService.catchWebViewIdentifier(url)
-                if(webViewIdentifier == null)
-                    return true
+                val webViewIdentifier: String =
+                    WebViewService.catchWebViewIdentifier(url) ?: return true
 
                 val intent = Intent(this@MainActivity, MainActivity2::class.java)
                 intent.putExtra("webViewIdentifier", webViewIdentifier)
-                var data = WebViewService.catchData(url)
+                val data = WebViewService.catchData(url)
                 for((k, v) in data)
                     intent.putExtra(k, v)
 
