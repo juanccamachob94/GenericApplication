@@ -1,11 +1,12 @@
 package com.example.genericapplication
 
 import android.net.Uri
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.webkit.WebView
 import android.view.MenuItem
 import android.view.View
 import android.webkit.WebViewClient
-import androidx.appcompat.app.AppCompatActivity
 import com.example.genericapplication.factories.DotenvFactory
 import com.example.genericapplication.services.AudioProviderService
 import com.example.genericapplication.services.VideoProviderService
@@ -15,16 +16,16 @@ import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.ext.ima.ImaAdsLoader
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory
 import com.google.android.exoplayer2.source.MediaSourceFactory
-import com.google.android.exoplayer2.util.Util
 import kotlinx.android.synthetic.main.activity_main.textView
 import kotlinx.android.synthetic.main.activity_main.webView
 import kotlinx.android.synthetic.main.activity_main2.*
-
 
 class MainActivity2 : AppCompatActivity() {
     private var player: ExoPlayer? = null
     private var adsLoader: ImaAdsLoader? = null
     private var mediaUrl: String? = null
+    private var videoIdentifier: String? = null
+    private var audioIdentifier: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,7 +61,25 @@ class MainActivity2 : AppCompatActivity() {
         this.webView!!.loadDataWithBaseURL(null,
             WebViewService.read(intent.getStringExtra("webViewIdentifier")), "text/html", "UTF-8",
             null)
-        this.webView.webViewClient = object : WebViewClient() {}
+        webView.webViewClient = object : WebViewClient() {
+            override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
+                if(WebViewService.isAppUrl(url)) {
+                    var operation = url.split("/")[1]
+                    if (operation.equals("play"))
+                        onResume()
+                    if (operation.equals("pause"))
+                        onPause()
+                    if (operation.equals("skip"))
+                        skipAds()
+                    if (operation.equals("new")){
+                        mediaUrl = getMediaUrl(url.split("?")[1])
+                        releasePlayer()
+                        initializePlayer()
+                    }
+                }
+                return true
+            }
+        }
     }
 
     private fun loadWebViewSettings() {
@@ -81,53 +100,55 @@ class MainActivity2 : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        if(Util.SDK_INT > 23) {
-            initializePlayer()
-            if(playerView != null)
-                playerView!!.onResume()
-        }
+        initializePlayer()
+        if(playerView != null)
+            playerView!!.onResume()
     }
 
     override fun onResume() {
         super.onResume()
-        if(Util.SDK_INT <= 23 || player == null) {
-            initializePlayer()
-            if(playerView != null)
-                playerView!!.onResume()
+        if(player != null) {
+            player!!.setPlayWhenReady(true)
+            player!!.getPlaybackState();
         }
     }
 
     override fun onPause() {
         super.onPause()
-        if(Util.SDK_INT <= 23) {
-            if(playerView != null)
-                playerView!!.onPause()
-            releasePlayer()
+        if (player != null) {
+            player!!.setPlayWhenReady(false)
+            player!!.getPlaybackState();
         }
+
     }
 
     override fun onStop() {
         super.onStop()
-        if(Util.SDK_INT > 23) {
-            if(playerView != null)
-                playerView!!.onPause()
-            releasePlayer()
-        }
+        if(playerView != null)
+            playerView!!.onPause()
+        releasePlayer()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    fun skipAds() {
         adsLoader!!.release()
     }
 
     private fun buildMediaUrl(): String? {
-        val videoIdentifier = intent.getStringExtra("defaultVideoIdentifier")
+        videoIdentifier = intent.getStringExtra("defaultVideoIdentifier")
         if(videoIdentifier != null)
             return VideoProviderService.buildUrl(videoIdentifier)
 
-        val audioIdentifier = intent.getStringExtra("defaultAudioIdentifier")
+        audioIdentifier = intent.getStringExtra("defaultAudioIdentifier")
         if(audioIdentifier != null)
             return AudioProviderService.buildUrl(audioIdentifier)
+        return null
+    }
+
+    private fun getMediaUrl(identifier : String): String? {
+        if(videoIdentifier != null)
+            return VideoProviderService.buildUrl(identifier)
+        if(audioIdentifier != null)
+            return AudioProviderService.buildUrl(identifier)
         return null
     }
 
@@ -157,7 +178,7 @@ class MainActivity2 : AppCompatActivity() {
         player!!.prepare()
 
         // Set PlayWhenReady. If true, content and ads will autoplay.
-        player!!.setPlayWhenReady(false)
+        player!!.setPlayWhenReady(true)
     }
 
     //creating mediaSource
