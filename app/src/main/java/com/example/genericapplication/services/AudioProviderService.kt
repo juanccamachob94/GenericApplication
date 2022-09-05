@@ -2,12 +2,12 @@ package com.example.genericapplication.services
 
 import com.example.genericapplication.factories.DotenvFactory
 
-class VideoProviderService {
+class AudioProviderService {
     companion object {
         fun buildUrl(identifier: String?): String? {
             if(identifier == null)
                 return null
-            return DotenvFactory.getInstance()["VIDEO_PROVIDER_HOST"] + "/" + identifier + ".m3u8"
+            return DotenvFactory.getInstance()["AUDIO_PROVIDER_HOST"] + "/DASH" + identifier
         }
     }
 }

@@ -3,8 +3,10 @@ package com.example.genericapplication
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.webkit.WebViewClient
 import com.example.genericapplication.factories.DotenvFactory
+import com.example.genericapplication.services.AudioProviderService
 import com.example.genericapplication.services.VideoProviderService
 import com.example.genericapplication.services.WebViewService
 import com.google.android.exoplayer2.ExoPlayer
@@ -18,8 +20,10 @@ import kotlinx.android.synthetic.main.activity_main.webView
 import kotlinx.android.synthetic.main.activity_main2.*
 
 class MainActivity2 : AppCompatActivity() {
+
     private var player: ExoPlayer? = null
     private var adsLoader: ImaAdsLoader? = null
+    private var mediaUrl: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,6 +36,13 @@ class MainActivity2 : AppCompatActivity() {
         this.adsLoader = ImaAdsLoader.Builder(this).build()
         this.textView.text = intent.getStringExtra("title")
         this.loadWebView()
+        this.mediaUrl = this.buildMediaUrl();
+        this.hidePlayerViewIfMediaUrlIsNull()
+    }
+
+    private fun hidePlayerViewIfMediaUrlIsNull() {
+        if(this.mediaUrl == null)
+            this.playerView.visibility = View.GONE
     }
 
     private fun loadWebView() {
@@ -53,7 +64,8 @@ class MainActivity2 : AppCompatActivity() {
     private fun releasePlayer() {
         adsLoader!!.setPlayer(null)
         playerView!!.player = null
-        player!!.release()
+        if(player != null)
+            player!!.release()
         player = null
     }
 
@@ -98,10 +110,22 @@ class MainActivity2 : AppCompatActivity() {
         adsLoader!!.release()
     }
 
+    private fun buildMediaUrl(): String? {
+        if(this.mediaUrl == null) {
+            val videoIdentifier = intent.getStringExtra("defaultVideoIdentifier")
+            val audioIdentifier = intent.getStringExtra("defaultAudioIdentifier")
+            if(videoIdentifier != null)
+                this.mediaUrl = VideoProviderService.buildUrl(videoIdentifier)
+            else if(audioIdentifier != null)
+                this.mediaUrl = AudioProviderService.buildUrl(audioIdentifier)
+        }
+        return this.mediaUrl;
+    }
+
     private fun initializePlayer() {
-        val videoUrl: String? =
-            VideoProviderService.buildUrl(intent.getStringExtra("defaultVideoIdentifier"))
-        val contentUri = Uri.parse(videoUrl)
+        if(this.mediaUrl == null)
+            return;
+        val contentUri = Uri.parse(this.mediaUrl)
         val adTagUri = Uri.parse(DotenvFactory.getInstance()["AD_TAG_URL"])
         // Create a SimpleExoPlayer and set it as the player for content and ads.
         player = ExoPlayer.Builder(this)
