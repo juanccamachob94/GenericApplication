@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import android.webkit.WebViewClient
-import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import com.example.genericapplication.factories.DotenvFactory
 import com.example.genericapplication.services.AudioProviderService
@@ -33,14 +32,11 @@ class MainActivity2 : AppCompatActivity() {
 
         // calling the action bar
         // calling the action bar
-        val actionBar: ActionBar? = supportActionBar
 
         // showing the back button in action bar
 
         // showing the back button in action bar
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true)
-        }
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         this.init()
     }
